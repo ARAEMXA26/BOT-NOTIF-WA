@@ -7,14 +7,24 @@ const pino = require('pino');
 const fs = require('fs');
 const path = require('path');
 
+// Initialize Logger
+const logger = pino({ level: 'info' });
+
+// Add exception handling to log crashes in production logs
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception: ' + err.message);
+  logger.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at: ' + promise + ' reason: ' + reason);
+});
+
 // Constants & Config
 const PORT = process.env.PORT || 3000;
 const WEBHOOK_TOKEN = process.env.WEBHOOK_TOKEN || 'bem_kominfo_secret_token_2026';
 const TARGET_PHONE = process.env.TARGET_PHONE || '6288293680886';
 const DB_FILE = path.join(__dirname, 'db.json');
-
-// Initialize Logger
-const logger = pino({ level: 'info' });
 
 // Global WhatsApp Client reference
 let sock = null;
